@@ -1,7 +1,7 @@
 import passport from "passport"
 import { Strategy } from "passport-google-oauth20"
 
-import UserModel from "../services/users/schema"
+import UserModel from "../services/users/schema.js"
 import { JWTAuthenticate } from "./tools.js"
 
 const GoogleStrat = new Strategy(

@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import server from "./server"
+import server from "./server.js"
 
 process.env.TS_NODE_DEV && require("dotenv").config()
 const port = process.env.PORT || 3030

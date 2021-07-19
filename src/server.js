@@ -4,7 +4,7 @@ import passport from "passport"
 import oauth from "./auth/oauth.js"
 import cookieParser from "cookie-parser"
 import usersRoutes from "./services/users/index.js"
-import chatRoutes from "./services/chat/index.js"
+//import chatRoutes from "./services/chat/index.js"
 import { unAuthorizedHandler, forbiddenHandler, catchAllHandler, error400 } from "./errorHandlers.js"
 
 const server = express()
@@ -17,7 +17,7 @@ server.use(passport.initialize())
 
 // ROUTES
 server.use("/users", usersRoutes)
-server.use("/chat", chatRoutes)
+//server.use("/chat", chatRoutes)
 
 // ERROR HANDLERS
 server.use(error400)
