@@ -13,18 +13,16 @@ const server = express()
 // MIDDLEWARES
 const limiter = new rateLimiter({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 60
+    max: 20
 })
 
-// apply rate limiter to all requests
-server.use(limiter)
 server.use(cors({ origin: "localhost", credentials: true }))
 server.use(express.json())
 server.use(cookieParser())
 server.use(passport.initialize())
 
 // ROUTES
-server.use("/users", usersRoutes)
+server.use("/users", usersRoutes, limiter)
 //server.use("/chat", chatRoutes)
 
 // ERROR HANDLERS
