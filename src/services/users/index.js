@@ -17,9 +17,9 @@ import multer from "multer"
 
 const usersRouter = express.Router()
 
-const heaveRateLimiter = rateLimiter({ windowMs: 60000, max: 5 })
+const heavyRateLimiter = rateLimiter({ windowMs: 60000, max: 5 })
 
-usersRouter.post("/register", UserValidator, heaveRateLimiter, async (req, res, next) => {
+usersRouter.post("/register", UserValidator, heavyRateLimiter, async (req, res, next) => {
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
@@ -42,7 +42,7 @@ usersRouter.post("/register", UserValidator, heaveRateLimiter, async (req, res, 
     }
 })
 
-usersRouter.post("/login", LoginValidator, heaveRateLimiter, async (req, res, next) => {
+usersRouter.post("/login", LoginValidator, heavyRateLimiter, async (req, res, next) => {
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
@@ -66,16 +66,16 @@ usersRouter.post("/login", LoginValidator, heaveRateLimiter, async (req, res, ne
 usersRouter.get("/login/oauth/google/login", passport.authenticate("google", { scope: ["profile", "email"] }))
 usersRouter.get("/login/oauth/google/redirect", passport.authenticate("google"), async (req, res, next) => {
     try {
-        const tokens = req.user
+        const { tokens } = req.user
         res.cookie("accessToken", tokens.accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
         res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
-        res.status(200).redirect("http://localhost:666/")
+        res.redirect("http://localhost:666/")
     } catch (error) {
         next(error)
     }
 })
 
-usersRouter.post("/logout", JWTAuthMiddleware, heaveRateLimiter, async (req, res, next) => {
+usersRouter.post("/logout", JWTAuthMiddleware, heavyRateLimiter, async (req, res, next) => {
     try {
         let user = req.user
         user.refreshToken = undefined
@@ -86,7 +86,7 @@ usersRouter.post("/logout", JWTAuthMiddleware, heaveRateLimiter, async (req, res
     }
 })
 
-usersRouter.post("/refreshToken", heaveRateLimiter, async (req, res, next) => {
+usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
     try {
         if (!req.body.refreshToken) next(createError(400, "Refresh Token not provided"))
         else {
@@ -122,7 +122,7 @@ usersRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
     }
 })
 
-usersRouter.delete("/me", JWTAuthMiddleware, heaveRateLimiter, async (req, res, next) => {
+usersRouter.delete("/me", JWTAuthMiddleware, heavyRateLimiter, async (req, res, next) => {
     try {
         const user = req.user
         await user.deleteOne()
@@ -133,7 +133,7 @@ usersRouter.delete("/me", JWTAuthMiddleware, heaveRateLimiter, async (req, res, 
     }
 })
 
-usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, heaveRateLimiter, async (req, res, next) => {
+usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, heavyRateLimiter, async (req, res, next) => {
     const { firstname, surname, email, screenname } = req.body
     try {
         const errors = validationResult(req)
@@ -157,7 +157,7 @@ usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, heaveRateLimiter, a
 const mongoUploadOptions = { new: true, useFindAndModify: false, timestamps: false }
 const cloudinaryStorage = new CloudinaryStorage({ cloudinary, params: { folder: "BW4" } })
 const upload = multer({ storage: cloudinaryStorage }).single("avatar")
-usersRouter.post("/me/avatar", JWTAuthMiddleware, heaveRateLimiter, upload, async (req, res, next) => {
+usersRouter.post("/me/avatar", JWTAuthMiddleware, heavyRateLimiter, upload, async (req, res, next) => {
     try {
         let user = req.user
         user.avatar = await Model.findByIdAndUpdate(req.user._id, { $set: { avatar: req.file.path } }, mongoUploadOptions)
@@ -181,7 +181,7 @@ usersRouter.get("/:id", JWTAuthMiddleware, async (req, res, next) => {
     }
 })
 
-usersRouter.delete("/:id", JWTAuthMiddleware, checkIfAdmin, heaveRateLimiter, async (req, res, next) => {
+usersRouter.delete("/:id", JWTAuthMiddleware, checkIfAdmin, heavyRateLimiter, async (req, res, next) => {
     try {
         let result
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
@@ -195,7 +195,7 @@ usersRouter.delete("/:id", JWTAuthMiddleware, checkIfAdmin, heaveRateLimiter, as
 })
 
 const mongoPutOptions = { runValidators: true, new: true, useFindAndModify: false }
-usersRouter.put("/:id", JWTAuthMiddleware, checkIfAdmin, heaveRateLimiter, async (req, res, next) => {
+usersRouter.put("/:id", JWTAuthMiddleware, checkIfAdmin, heavyRateLimiter, async (req, res, next) => {
     try {
         let result
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))

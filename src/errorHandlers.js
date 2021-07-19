@@ -10,7 +10,7 @@ export const unAuthorizedHandler = (err, req, res, next) => {
 
 export const forbiddenHandler = (err, req, res, next) => {
     if (err.status === 403) res.status(403).send(err.message || "You are not allowed to do that!")
-    if (err.status === 404) res.status(404).send(err.message || "You are lost")
+    else if (err.status === 404) res.status(404).send(err.message || "You are lost")
     else next(err)
 }
 

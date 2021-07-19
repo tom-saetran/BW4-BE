@@ -1,6 +1,6 @@
+import csrf from "csurf"
 import cors from "cors"
 import express from "express"
-import rateLimiter from "express-rate-limit"
 import passport from "passport"
 import oauth from "./auth/oauth.js"
 import cookieParser from "cookie-parser"
@@ -11,12 +11,12 @@ import { unAuthorizedHandler, forbiddenHandler, catchAllHandler, error400 } from
 const server = express()
 
 // MIDDLEWARES
-const limiter = rateLimiter({ windowMs: 601000, max: 20 })
 
 server.use(cors({ origin: "localhost", credentials: true }))
 server.use(express.json())
 server.use(cookieParser())
-server.use(passport.initialize())
+server.use(passport.initialize({ session: true }))
+server.use(csrf({ cookie: { httpOnly: true } }))
 
 // ROUTES
 server.use("/users", usersRoutes)
