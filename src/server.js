@@ -2,10 +2,16 @@ import cors from "cors"
 import express from "express"
 import passport from "passport"
 import oauth from "./auth/oauth.js"
+import listEndpoints from "express-list-endpoints"
 import cookieParser from "cookie-parser"
 import usersRoutes from "./services/users/index.js"
-//import chatRoutes from "./services/chat/index.js"
-import { unAuthorizedHandler, forbiddenHandler, catchAllHandler, error400 } from "./errorHandlers.js"
+import chatRoutes from "./services/chat/index.js"
+import {
+  unAuthorizedHandler,
+  forbiddenHandler,
+  catchAllHandler,
+  error400,
+} from "./errorHandlers.js"
 
 const server = express()
 
@@ -17,12 +23,12 @@ server.use(passport.initialize())
 
 // ROUTES
 server.use("/users", usersRoutes)
-//server.use("/chat", chatRoutes)
+server.use("/chat", chatRoutes)
 
 // ERROR HANDLERS
 server.use(error400)
 server.use(unAuthorizedHandler)
 server.use(forbiddenHandler)
 server.use(catchAllHandler)
-
+console.table(listEndpoints(server))
 export default server
