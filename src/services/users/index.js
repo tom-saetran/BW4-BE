@@ -140,7 +140,7 @@ usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, async (req, res, ne
             user.surname = surname
             user.screenname = screenname
             user.email = email
-            //user.password = await hashPassword(req.body.password) // <= goes to own route in next revision
+            user.password = await hashPassword(req.body.password) // <= goes to own route in next revision
 
             const result = await user.save()
 
@@ -154,7 +154,7 @@ usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, async (req, res, ne
 const mongoUploadOptions = { new: true, useFindAndModify: false, timestamps: false }
 const cloudinaryStorage = new CloudinaryStorage({ cloudinary, params: { folder: "BW4" } })
 const upload = multer({ storage: cloudinaryStorage }).single("avatar")
-usersRouter.post("/me/avatar", upload, async (req, res, next) => {
+usersRouter.post("/me/avatar", JWTAuthMiddleware, upload, async (req, res, next) => {
     try {
         let user = req.user
         user.avatar = await Model.findByIdAndUpdate(req.user._id, { $set: { avatar: req.file.path } }, mongoUploadOptions)
@@ -165,7 +165,7 @@ usersRouter.post("/me/avatar", upload, async (req, res, next) => {
     }
 })
 
-usersRouter.get("/:id", async (req, res, next) => {
+usersRouter.get("/:id", JWTAuthMiddleware, async (req, res, next) => {
     try {
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
         else {
