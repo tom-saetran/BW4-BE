@@ -1,5 +1,6 @@
 import cors from "cors"
 import express from "express"
+import rateLimiter from "express-rate-limit"
 import passport from "passport"
 import oauth from "./auth/oauth.js"
 import cookieParser from "cookie-parser"
@@ -10,6 +11,13 @@ import { unAuthorizedHandler, forbiddenHandler, catchAllHandler, error400 } from
 const server = express()
 
 // MIDDLEWARES
+const limiter = new rateLimiter({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 60
+})
+
+// apply rate limiter to all requests
+server.use(limiter)
 server.use(cors({ origin: "localhost", credentials: true }))
 server.use(express.json())
 server.use(cookieParser())
