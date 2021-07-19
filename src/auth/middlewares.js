@@ -1,6 +1,6 @@
 import createError from "http-errors"
 import UserModel from "../services/users/schema.js"
-import { verifyToken } from "./tools"
+import { verifyToken } from "./tools.js"
 
 export const JWTAuthMiddleware = async (req, res, next) => {
     if (!req.cookies.accessToken) next(createError(400, "No token provided"))

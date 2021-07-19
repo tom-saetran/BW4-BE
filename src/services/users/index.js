@@ -1,15 +1,18 @@
 import q2m from "query-to-mongo"
 import express from "express"
 import passport from "passport"
-import Model from "./schema"
+import Model from "./schema.js"
 import createError from "http-errors"
 import { validationResult } from "express-validator"
 import mongoose from "mongoose"
 const { isValidObjectId } = mongoose
 import { JWTAuthMiddleware } from "../../auth/middlewares.js"
-import { checkIfAdmin } from "../../auth/admin.js"
+import { checkIfAdmin } from "../../auth/permissions.js"
 import { LoginValidator, UserValidator, UserEditValidator } from "./validator.js"
 import { refreshTokens, JWTAuthenticate } from "../../auth/tools.js"
+import { v2 as cloudinary } from "cloudinary"
+import { CloudinaryStorage } from "multer-storage-cloudinary"
+import multer from "multer"
 
 const usersRouter = express.Router()
 
@@ -147,6 +150,20 @@ usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, async (req, res, ne
     }
 })
 
+const mongoUploadOptions = { new: true, useFindAndModify: false, timestamps: false }
+const cloudinaryStorage = new CloudinaryStorage({ cloudinary, params: { folder: "BW4" } })
+const upload = multer({ storage: cloudinaryStorage }).single("avatar")
+usersRouter.post("/me/avatar", upload, async (req, res, next) => {
+    try {
+        let user = req.user
+        user.avatar = await Model.findByIdAndUpdate(req.user._id, { $set: { avatar: req.file.path } }, mongoUploadOptions)
+        const result = await user.save()
+        res.status(200).send(result)
+    } catch (error) {
+        next(error)
+    }
+})
+
 usersRouter.get("/:id", async (req, res, next) => {
     try {
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
@@ -173,11 +190,12 @@ usersRouter.delete("/:id", JWTAuthMiddleware, checkIfAdmin, async (req, res, nex
     }
 })
 
+const mongoPutOptions = { runValidators: true, new: true, useFindAndModify: false }
 usersRouter.put("/:id", JWTAuthMiddleware, checkIfAdmin, async (req, res, next) => {
     try {
         let result
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
-        else result = await Model.findByIdAndUpdate(req.params.id, req.body, { runValidators: true, new: true, useFindAndModify: false })
+        else result = await Model.findByIdAndUpdate(req.params.id, req.body, mongoPutOptions)
 
         if (!result) next(createError(404, `ID ${req.params.id} was not found`))
         else res.status(200).send(result)

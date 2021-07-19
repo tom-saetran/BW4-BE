@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import ChatModel from "../services/chat/schema.js"
+//import ChatModel from "../services/chat/schema.js"
 
 export const checkIfAdmin = (req, res, next) => {
     const user = req.user

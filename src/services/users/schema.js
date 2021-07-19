@@ -1,7 +1,7 @@
-import { model, Schema } from "mongoose"
+import mongoose from "mongoose"
 import bcrypt from "bcrypt"
-import { hashPassword } from "../../auth/tools"
-
+import { hashPassword } from "../../auth/tools.js"
+const { model, Schema } = mongoose
 const UserSchema = new Schema(
     {
         firstname: { type: String, required: true },
@@ -10,7 +10,9 @@ const UserSchema = new Schema(
         email: { type: String, required: true, unique: true },
         password: { type: String },
         refreshToken: { type: String },
-        googleOAuth: { type: String }
+        googleOAuth: { type: String },
+        role: { type: String, enum: ["User", "Moderator", "Admin"], required: true, default: "User" },
+        avatar: { type: String, required: true, default: "https://bw4-be.herokuapp.com/images/noavatar.png" }
     },
     { timestamps: true }
 )
