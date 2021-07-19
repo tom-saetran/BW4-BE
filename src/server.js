@@ -11,10 +11,7 @@ import { unAuthorizedHandler, forbiddenHandler, catchAllHandler, error400 } from
 const server = express()
 
 // MIDDLEWARES
-const limiter = new rateLimiter({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 20
-})
+const limiter = rateLimiter({ windowMs: 601000, max: 20 })
 
 server.use(cors({ origin: "localhost", credentials: true }))
 server.use(express.json())
@@ -22,7 +19,7 @@ server.use(cookieParser())
 server.use(passport.initialize())
 
 // ROUTES
-server.use("/users", usersRoutes, limiter)
+server.use("/users", usersRoutes)
 //server.use("/chat", chatRoutes)
 
 // ERROR HANDLERS

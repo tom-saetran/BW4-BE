@@ -2,6 +2,7 @@ import q2m from "query-to-mongo"
 import express from "express"
 import passport from "passport"
 import Model from "./schema.js"
+import rateLimiter from "express-rate-limit"
 import createError from "http-errors"
 import { validationResult } from "express-validator"
 import mongoose from "mongoose"
@@ -16,7 +17,9 @@ import multer from "multer"
 
 const usersRouter = express.Router()
 
-usersRouter.post("/register", UserValidator, async (req, res, next) => {
+const heaveRateLimiter = rateLimiter({ windowMs: 60000, max: 5 })
+
+usersRouter.post("/register", UserValidator, heaveRateLimiter, async (req, res, next) => {
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
@@ -39,7 +42,7 @@ usersRouter.post("/register", UserValidator, async (req, res, next) => {
     }
 })
 
-usersRouter.post("/login", LoginValidator, async (req, res, next) => {
+usersRouter.post("/login", LoginValidator, heaveRateLimiter, async (req, res, next) => {
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
@@ -72,7 +75,7 @@ usersRouter.get("/login/oauth/google/redirect", passport.authenticate("google"),
     }
 })
 
-usersRouter.post("/logout", JWTAuthMiddleware, async (req, res, next) => {
+usersRouter.post("/logout", JWTAuthMiddleware, heaveRateLimiter, async (req, res, next) => {
     try {
         let user = req.user
         user.refreshToken = undefined
@@ -83,7 +86,7 @@ usersRouter.post("/logout", JWTAuthMiddleware, async (req, res, next) => {
     }
 })
 
-usersRouter.post("/refreshToken", async (req, res, next) => {
+usersRouter.post("/refreshToken", heaveRateLimiter, async (req, res, next) => {
     try {
         if (!req.body.refreshToken) next(createError(400, "Refresh Token not provided"))
         else {
@@ -119,7 +122,7 @@ usersRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
     }
 })
 
-usersRouter.delete("/me", JWTAuthMiddleware, async (req, res, next) => {
+usersRouter.delete("/me", JWTAuthMiddleware, heaveRateLimiter, async (req, res, next) => {
     try {
         const user = req.user
         await user.deleteOne()
@@ -130,7 +133,7 @@ usersRouter.delete("/me", JWTAuthMiddleware, async (req, res, next) => {
     }
 })
 
-usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, async (req, res, next) => {
+usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, heaveRateLimiter, async (req, res, next) => {
     const { firstname, surname, email, screenname } = req.body
     try {
         const errors = validationResult(req)
@@ -154,7 +157,7 @@ usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, async (req, res, ne
 const mongoUploadOptions = { new: true, useFindAndModify: false, timestamps: false }
 const cloudinaryStorage = new CloudinaryStorage({ cloudinary, params: { folder: "BW4" } })
 const upload = multer({ storage: cloudinaryStorage }).single("avatar")
-usersRouter.post("/me/avatar", JWTAuthMiddleware, upload, async (req, res, next) => {
+usersRouter.post("/me/avatar", JWTAuthMiddleware, heaveRateLimiter, upload, async (req, res, next) => {
     try {
         let user = req.user
         user.avatar = await Model.findByIdAndUpdate(req.user._id, { $set: { avatar: req.file.path } }, mongoUploadOptions)
@@ -178,7 +181,7 @@ usersRouter.get("/:id", JWTAuthMiddleware, async (req, res, next) => {
     }
 })
 
-usersRouter.delete("/:id", JWTAuthMiddleware, checkIfAdmin, async (req, res, next) => {
+usersRouter.delete("/:id", JWTAuthMiddleware, checkIfAdmin, heaveRateLimiter, async (req, res, next) => {
     try {
         let result
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
@@ -192,7 +195,7 @@ usersRouter.delete("/:id", JWTAuthMiddleware, checkIfAdmin, async (req, res, nex
 })
 
 const mongoPutOptions = { runValidators: true, new: true, useFindAndModify: false }
-usersRouter.put("/:id", JWTAuthMiddleware, checkIfAdmin, async (req, res, next) => {
+usersRouter.put("/:id", JWTAuthMiddleware, checkIfAdmin, heaveRateLimiter, async (req, res, next) => {
     try {
         let result
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
