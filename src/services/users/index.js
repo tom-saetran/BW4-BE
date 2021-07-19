@@ -131,13 +131,14 @@ usersRouter.delete("/me", JWTAuthMiddleware, async (req, res, next) => {
 })
 
 usersRouter.put("/me", JWTAuthMiddleware, UserEditValidator, async (req, res, next) => {
-    const { firstname, surname, email } = req.body
+    const { firstname, surname, email, screenname } = req.body
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
             let user = req.user
             user.firstname = firstname
             user.surname = surname
+            user.screenname = screenname
             user.email = email
             //user.password = await hashPassword(req.body.password) // <= goes to own route in next revision
 

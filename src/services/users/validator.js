@@ -17,16 +17,10 @@ export const UserValidator = [
 ]
 
 export const UserEditValidator = [
-    body("firstname").exists().withMessage("Firstname is a mandatory field"),
-    body("surname").exists().withMessage("Surname is a mandatory field"),
-    body("screenname").exists().withMessage("Screenname is a mandatory field"),
-    body("email")
-        .exists()
-        .isLength({ max: 64 })
-        .withMessage("Email is a mandatory field")
-        .isEmail()
-        .normalizeEmail()
-        .withMessage("Invalid email")
+    body("firstname").isString().withMessage("Firstname needs to be of type string"),
+    body("surname").isString().withMessage("Surname needs to be of type string"),
+    body("screenname").isString().withMessage("Screenname needs to be of type string"),
+    body("email").isLength({ max: 64 }).withMessage("Email is a mandatory field").isEmail().normalizeEmail().withMessage("Invalid email")
 ]
 
 export const LoginValidator = [
