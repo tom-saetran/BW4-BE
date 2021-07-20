@@ -38,7 +38,7 @@ usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, 
 
                     res.cookie("accessToken", accessToken, cookieOptions)
                     res.cookie("refreshToken", refreshToken, cookieOptions)
-                    res.redirect("/chat")
+                    res.send(user)
                 } else next(createError(500, "Something went wrong while logging in"))
             } else next(createError(500, "Something went wrong while registering"))
         } else next(createError(400, errors.mapped()))
