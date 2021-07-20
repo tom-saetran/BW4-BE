@@ -3,6 +3,7 @@ import express from "express"
 import passport from "passport"
 import Model from "./schema.js"
 import rateLimiter from "express-rate-limit"
+import speedLimiter from "express-slow-down"
 import createError from "http-errors"
 import { validationResult } from "express-validator"
 import mongoose from "mongoose"
@@ -18,6 +19,7 @@ import multer from "multer"
 const usersRouter = express.Router()
 
 const heavyRateLimiter = rateLimiter({ windowMs: 60000, max: 5 })
+const normalSpeedLimiter = speedLimiter({ windowMs: 60000, delayAfter: 60, delayMs: 1000 })
 
 usersRouter.post("/register", UserValidator, heavyRateLimiter, async (req, res, next) => {
     try {
@@ -63,8 +65,8 @@ usersRouter.post("/login", LoginValidator, heavyRateLimiter, async (req, res, ne
     }
 })
 
-usersRouter.get("/login/oauth/google/login", passport.authenticate("google", { scope: ["profile", "email"] }))
-usersRouter.get("/login/oauth/google/redirect", passport.authenticate("google"), async (req, res, next) => {
+usersRouter.get("/login/oauth/google/login", normalSpeedLimiter, passport.authenticate("google", { scope: ["profile", "email"] }))
+usersRouter.get("/login/oauth/google/redirect", normalSpeedLimiter, passport.authenticate("google"), async (req, res, next) => {
     try {
         const { tokens } = req.user
         res.cookie("accessToken", tokens.accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
@@ -98,7 +100,7 @@ usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
     }
 })
 
-usersRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
+usersRouter.get("/", JWTAuthMiddleware, normalSpeedLimiter, async (req, res, next) => {
     try {
         const query = q2m(req.query)
         const pages = await Model.countDocuments(query.criteria)
@@ -114,7 +116,7 @@ usersRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
     }
 })
 
-usersRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
+usersRouter.get("/me", JWTAuthMiddleware, normalSpeedLimiter, async (req, res, next) => {
     try {
         res.send(req.user)
     } catch (error) {
@@ -168,7 +170,7 @@ usersRouter.post("/me/avatar", JWTAuthMiddleware, heavyRateLimiter, upload, asyn
     }
 })
 
-usersRouter.get("/:id", JWTAuthMiddleware, async (req, res, next) => {
+usersRouter.get("/:id", JWTAuthMiddleware, normalSpeedLimiter, async (req, res, next) => {
     try {
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
         else {

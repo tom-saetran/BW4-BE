@@ -237,7 +237,7 @@ const UserSchema = new Schema(
         username: {
             type: String,
             required: true,
-            default: animals[Math.random() * animals.length] + "-" + crypto.randomBytes(8).toString("hex")
+            default: animals[Math.floor(Math.random() * animals.length)] + "-" + crypto.randomBytes(8).toString("hex")
         },
         email: { type: String, required: true, unique: true },
         password: { type: String },
@@ -254,6 +254,7 @@ UserSchema.methods.toJSON = function () {
     const object = schema.toObject()
 
     delete object.password
+    delete object.refreshToken
     delete object.__v
 
     return object

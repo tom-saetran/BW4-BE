@@ -11,5 +11,3 @@ mongoose
     .connect(MONGO_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
     .then(() => server.listen(port, () => console.log("Server running on port", port)))
     .catch(e => console.log(e))
-
-// TODO: connect to postgres as well
