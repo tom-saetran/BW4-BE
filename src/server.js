@@ -12,7 +12,7 @@ import { JWTAuthMiddleware } from "./auth/middlewares.js"
 const server = express()
 // MIDDLEWARES
 
-server.use(cors({ origin: "localhost", credentials: true }))
+//server.use(cors({ origin: "localhost", credentials: true }))
 server.use(express.json())
 server.use(cookieParser())
 server.use(passport.initialize({ session: true }))
