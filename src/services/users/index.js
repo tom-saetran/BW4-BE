@@ -59,7 +59,7 @@ usersRouter.post("/login", heavyRateLimiter, LoginValidator, async (req, res, ne
 
                 res.cookie("accessToken", accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
                 res.cookie("refreshToken", refreshToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
-                res.status(200).redirect(req.baseUrl)
+                res.send(user)
             } else next(createError(401, "Wrong credentials provided"))
         } else next(createError(400, errors.mapped()))
     } catch (error) {
