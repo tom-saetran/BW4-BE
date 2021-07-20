@@ -28,7 +28,7 @@ usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, 
         if (errors.isEmpty()) {
             const entry = new Model(req.body)
             const result = await entry.save()
-            console.log("result:", result)
+
             if (result) {
                 const { email, password } = req.body
                 const user = await Model.checkCredentials(email, password)
