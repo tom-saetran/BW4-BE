@@ -260,7 +260,7 @@ UserSchema.methods.toJSON = function () {
     return object
 }
 
-UserSchema.statics.checkCredentials = async function () {
+UserSchema.statics.checkCredentials = async function (email, plainPw) {
     const user = await this.findOne({ email })
     if (user) {
         const hashedPw = user.password

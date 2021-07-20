@@ -28,7 +28,7 @@ usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, 
         if (errors.isEmpty()) {
             const entry = new Model(req.body)
             const result = await entry.save()
-
+            console.log("result:", result)
             if (result) {
                 const { email, password } = req.body
                 const user = await Model.checkCredentials(email, password)
@@ -36,7 +36,7 @@ usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, 
                 if (user) {
                     const { accessToken, refreshToken } = await JWTAuthenticate(user)
 
-                    res.cookie("accessToken", accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
+                    res.cookie("accessToken", accessToken, cookieOptions)
                     res.cookie("refreshToken", refreshToken, cookieOptions)
                     res.redirect("/chat")
                 } else next(createError(500, "Something went wrong while logging in"))
