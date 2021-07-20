@@ -16,7 +16,7 @@ server.use(cors())
 server.use(express.json())
 server.use(cookieParser())
 server.use(passport.initialize({ session: true }))
-server.use(csrf({ cookie: { httpOnly: true /*, sameSite: "lax", secure: true*/ } }))
+//server.use(csrf({ cookie: { httpOnly: true /*, sameSite: "lax", secure: true*/ } }))
 
 // ROUTES
 server.use("/users", usersRoutes)
