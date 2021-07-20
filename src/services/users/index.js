@@ -38,7 +38,7 @@ usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, 
 
                     res.cookie("accessToken", accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
                     res.cookie("refreshToken", refreshToken, cookieOptions)
-                    res.redirect("http://localhost:666/")
+                    res.redirect("/chat")
                 } else next(createError(500, "Something went wrong while logging in"))
             } else next(createError(500, "Something went wrong while registering"))
         } else next(createError(400, errors.mapped()))
@@ -74,7 +74,7 @@ usersRouter.get("/login/oauth/google/redirect", normalSpeedLimiter, passport.aut
         const { tokens } = req.user
         res.cookie("accessToken", tokens.accessToken, cookieOptions)
         res.cookie("refreshToken", tokens.refreshToken, cookieOptions)
-        res.redirect("./chat")
+        res.redirect("/chat")
     } catch (error) {
         next(error)
     }
