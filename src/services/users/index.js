@@ -52,14 +52,13 @@ usersRouter.post("/login", heavyRateLimiter, LoginValidator, async (req, res, ne
         const errors = validationResult(req)
         if (errors.isEmpty()) {
             const { email, password } = req.body
-            const tokens = req.user
             const user = await Model.checkCredentials(email, password)
 
             if (user) {
                 const { accessToken, refreshToken } = await JWTAuthenticate(user)
 
-                res.cookie("accessToken", tokens.accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
-                res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
+                res.cookie("accessToken", accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
+                res.cookie("refreshToken", refreshToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
                 res.status(200).redirect(req.baseUrl)
             } else next(createError(401, "Wrong credentials provided"))
         } else next(createError(400, errors.mapped()))
