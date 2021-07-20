@@ -2,13 +2,21 @@ import mongoose from "mongoose"
 import server from "./server.js"
 import { createServer } from "http"
 import { Server } from "socket.io"
+import { verifyToken } from "./auth/tools.js"
 
 const http = createServer(server)
 const io = new Server(http, { allowEIO3: true })
 
 let onlineUsers = []
 
-// Add "event listeners" on your socket when it's connecting
+io.use(async (socket, next) => {
+    const token = socket.handshake.headers.cookie.accessToken
+    if (token) {
+        if (await verifyToken(token)) next()
+        else next(createError(403))
+    } else next(createError(400, "Missing credentials"))
+})
+
 io.on("connection", socket => {
     // socket.on("join-room", (room) => {
     //     socket.join(room)
