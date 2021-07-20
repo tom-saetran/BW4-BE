@@ -1,12 +1,12 @@
-import csrf from "csurf"
 import cors from "cors"
+import csrf from "csurf"
 import express from "express"
 import passport from "passport"
 import oauth from "./auth/oauth.js"
 import cookieParser from "cookie-parser"
 import usersRoutes from "./services/users/index.js"
-//import chatRoutes from "./services/chat/index.js"
-import { unAuthorizedHandler, forbiddenHandler, catchAllHandler, error400 } from "./errorHandlers.js"
+import chatRoutes from "./services/chat/index.js"
+import { catchAllHandler, error4xx } from "./errors.js"
 
 const server = express()
 
@@ -23,9 +23,7 @@ server.use("/users", usersRoutes)
 //server.use("/chat", chatRoutes)
 
 // ERROR HANDLERS
-server.use(error400)
-server.use(unAuthorizedHandler)
-server.use(forbiddenHandler)
+server.use(error4xx)
 server.use(catchAllHandler)
 
 export default server
