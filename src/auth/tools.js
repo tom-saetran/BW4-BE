@@ -58,4 +58,4 @@ export const refreshTokens = async actualRefreshToken => {
     } else throw new Error("Refresh Token not valid")
 }
 
-export const cookieOptions = { httpOnly: true /*, sameSite: "lax", secure: true*/ }
+export const cookieOptions = { httpOnly: true, sameSite: "none", secure: true }
