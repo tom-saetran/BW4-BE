@@ -24,7 +24,7 @@ const corsOptions = {
     }
 }
 
-server.use(cors(corsOptions))
+//server.use(cors(corsOptions))
 server.use(express.json())
 server.use(cookieParser())
 server.use(passport.initialize({ session: true }))
