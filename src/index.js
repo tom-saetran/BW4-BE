@@ -1,10 +1,9 @@
 import mongoose from "mongoose"
 import server from "./server.js"
 import { createServer } from "http"
-
-export const http = createServer(server)
 import { Server } from "socket.io"
 
+const http = createServer(server)
 const io = new Server(http, { allowEIO3: true })
 
 let onlineUsers = []

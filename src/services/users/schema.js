@@ -237,7 +237,7 @@ const UserSchema = new Schema(
         username: {
             type: String,
             required: true,
-            default: animals[Math.floor(Math.random() * animals.length)] + "-" + crypto.randomBytes(8).toString("hex")
+            default: animals[Math.floor(Math.random() * animals.length)] + "-" + crypto.randomBytes(8).toString("ascii")
         },
         email: { type: String, required: true, unique: true },
         password: { type: String },
