@@ -107,10 +107,11 @@ usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, nex
         const query = q2m(req.query)
         const pages = await Model.countDocuments(query.criteria)
         const maxLimit = 10
+        query.options.limit = query.options.limit < maxLimit ? query.options.limit : maxLimit
         const result = await Model.find(query.criteria)
             .sort(query.options.sort)
             .skip(query.options.skip || 0)
-            .limit(query.options.limit && query.options.limit < maxLimit ? query.options.limit : maxLimit)
+            .limit(query.options.limit)
         const response = result.map(entry => ({
             _id: entry._id,
             firstname: entry.firstname,
