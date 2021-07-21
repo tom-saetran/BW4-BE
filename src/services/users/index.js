@@ -96,8 +96,8 @@ usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
         if (!req.cookies.refreshToken) next(createError(400, "Refresh Token not provided"))
         else {
             const { newAccessToken, newRefreshToken } = await refreshTokens(req.cookies.refreshToken)
-            res.cookie("accessToken", tokens.accessToken, cookieOptions)
-            res.cookie("refreshToken", tokens.refreshToken, { ...cookieOptions, path: "/users/refreshToken" })
+            res.cookie("accessToken", newAccessToken, cookieOptions)
+            res.cookie("refreshToken", newRefreshToken, { ...cookieOptions, path: "/users/refreshToken" })
             res.send("OK")
         }
     } catch (error) {
