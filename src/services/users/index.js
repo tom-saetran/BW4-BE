@@ -15,6 +15,7 @@ import { checkIfAdmin } from "../../auth/permissions.js"
 import { JWTAuthMiddleware } from "../../auth/middlewares.js"
 import { refreshTokens, JWTAuthenticate } from "../../auth/tools.js"
 import { LoginValidator, UserValidator, UserEditValidator } from "./validator.js"
+import ChatModel from "../chats/schema.js"
 
 const { isValidObjectId } = mongoose
 const usersRouter = express.Router()
@@ -37,7 +38,7 @@ usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, 
                     const { accessToken, refreshToken } = await JWTAuthenticate(user)
 
                     res.cookie("accessToken", accessToken, cookieOptions)
-                    res.cookie("refreshToken", refreshToken, cookieOptions)
+                    res.cookie("refreshToken", refreshToken, { ...cookieOptions, path: "/users/refreshToken" })
                     res.send(user)
                 } else next(createError(500, "Something went wrong while logging in"))
             } else next(createError(500, "Something went wrong while registering"))
@@ -72,7 +73,7 @@ usersRouter.get("/login/oauth/google/redirect", normalSpeedLimiter, passport.aut
     try {
         const { tokens } = req.user
         res.cookie("accessToken", tokens.accessToken, cookieOptions)
-        res.cookie("refreshToken", tokens.refreshToken, cookieOptions)
+        res.cookie("refreshToken", tokens.refreshToken, { ...cookieOptions, path: "/users/refreshToken" })
         res.redirect("/chat")
     } catch (error) {
         next(error)
@@ -134,26 +135,43 @@ usersRouter.get("/me", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, n
     }
 })
 
+usersRouter.get("/me/chats", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
+    try {
+        const result = await ChatModel.findOne({ room: req.user.room })
+        res.send(result)
+    } catch (error) {
+        next(error)
+    }
+})
+
+usersRouter.get("/me/chats/:id", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
+    try {
+        const result = await ChatModel.findById(req.params.id).populate("chats")
+        res.send(result)
+    } catch (error) {
+        next(error)
+    }
+})
+
 usersRouter.delete("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         const user = req.user
         await user.deleteOne()
         res.status(404).send("User not found")
-        //res.sendStatus(204)
     } catch (error) {
         next(error)
     }
 })
 
 usersRouter.put("/me", heavyRateLimiter, UserEditValidator, JWTAuthMiddleware, async (req, res, next) => {
-    const { firstname, surname, email, screenname } = req.body
+    const { firstname, surname, email, username } = req.body
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
             let user = req.user
             user.firstname = firstname
             user.surname = surname
-            user.screenname = screenname
+            user.username = username
             user.email = email
             user.password = await hashPassword(req.body.password) // <= goes to own route in next revision
 

@@ -1,14 +1,18 @@
+import cors from "cors"
 import mongoose from "mongoose"
+import Model from "./services/chat/schema.js"
 import server from "./server.js"
 import { createServer } from "http"
 import { Server } from "socket.io"
 import { verifyToken } from "./auth/tools.js"
+import { corsOptions } from "./server.js"
 
 const http = createServer(server)
 const io = new Server(http, { allowEIO3: true })
 
 let onlineUsers = []
 
+io.use(cors(corsOptions))
 io.use(async (socket, next) => {
     const token = socket.handshake.headers.cookie.accessToken
     if (token) {
