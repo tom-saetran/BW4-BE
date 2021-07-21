@@ -31,9 +31,9 @@ chatRoutes.post("/room", async (req, res, next) => {
 
     if (room) res.status(200).send(room._id)
     else {
-        room = new Model(members)
-        await room.save()
-        res.status(201).send(room._id)
+        const newRoom = new Model(members)
+        await newRoom.save()
+        res.status(201).send(newRoom._id)
     }
 })
 // FRONT END CLUES 🦊
