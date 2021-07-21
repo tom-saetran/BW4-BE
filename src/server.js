@@ -34,7 +34,7 @@ server.use(cors(corsOptions))
 server.use(express.json())
 server.use(cookieParser())
 server.use(passport.initialize({ session: true }))
-server.use(csrf({ cookie: cookieOptions }))
+//server.use(csrf({ cookie: cookieOptions }))
 
 server.use("/users", usersRoutes)
 server.use("/chat", JWTAuthMiddleware, chatRoutes)
