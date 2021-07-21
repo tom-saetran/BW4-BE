@@ -93,9 +93,9 @@ usersRouter.post("/logout", heavyRateLimiter, JWTAuthMiddleware, async (req, res
 
 usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
     try {
-        if (!req.body.refreshToken) next(createError(400, "Refresh Token not provided"))
+        if (!req.cookies.refreshToken) next(createError(400, "Refresh Token not provided"))
         else {
-            const { newAccessToken, newRefreshToken } = await refreshTokens(req.body.refreshToken)
+            const { newAccessToken, newRefreshToken } = await refreshTokens(req.cookies.refreshToken)
             res.send({ newAccessToken, newRefreshToken })
         }
     } catch (error) {
@@ -184,7 +184,6 @@ usersRouter.put("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, nex
     }
 })
 
-const mongoUploadOptions = { new: true, useFindAndModify: false, timestamps: false }
 const cloudinaryStorage = new CloudinaryStorage({ cloudinary, params: { folder: "BW4" } })
 const upload = multer({ storage: cloudinaryStorage }).single("avatar")
 usersRouter.post("/me/avatar", heavyRateLimiter, JWTAuthMiddleware, upload, async (req, res, next) => {
