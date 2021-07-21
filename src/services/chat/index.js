@@ -5,7 +5,7 @@ const chatRoutes = express.Router()
 
 chatRoutes.post("/room", async (req, res) => {
     try {
-        const room = await Model.findOne({ name: req.body })
+        const room = await Model.findOne({ name: req.body.roomName })
         if (room) {
             res.status(201).send(room)
         } else {
