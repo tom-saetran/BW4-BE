@@ -15,7 +15,7 @@ import { checkIfAdmin } from "../../auth/permissions.js"
 import { JWTAuthMiddleware } from "../../auth/middlewares.js"
 import { refreshTokens, JWTAuthenticate } from "../../auth/tools.js"
 import { LoginValidator, UserValidator, UserEditValidator } from "./validator.js"
-import ChatModel from "../chats/schema.js"
+import ChatModel from "../chat/schema.js"
 
 const { isValidObjectId } = mongoose
 const usersRouter = express.Router()
