@@ -108,7 +108,7 @@ usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, nex
         const users = await Model.countDocuments(query.criteria)
         const maxLimit = 10
         if (!query.options.limit) query.options.limit = maxLimit
-        query.options.limit = query.options.limit < maxLimit ? query.options.limit : maxLimit
+        query.options.limit = query.options.limit <= maxLimit ? query.options.limit : maxLimit
         const result = await Model.find(query.criteria)
             .sort(query.options.sort)
             .skip(query.options.skip || 0)
@@ -120,7 +120,7 @@ usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, nex
             username: entry.username
         }))
         const pages = Math.ceil(users / query.options.limit)
-        res.status(200).send({ navigation: query.links("/users", pages), pages, response })
+        res.status(200).send({ navigation: query.links("/users", users), pages, response })
     } catch (error) {
         next(error)
     }
