@@ -46,8 +46,8 @@ chatRoutes.post("/room", async (req, res, next) => {
 // GET ROOMS FROM USERDB? WITH ROOM ID
 chatRoutes.get("/", async (req, res, next) => {
     const myRooms = await Model.find({ members: req.user._id })
-    if (myRooms.length > 0) next(createError(404, "You are alone in this world"))
-    else res.send(myRooms)
+    if (myRooms.length > 0) res.send(myRooms)
+    else next(createError(404, "You are alone in this world"))
 })
 
 //GET CHATS IN ROOM WITH ID
