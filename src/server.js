@@ -11,8 +11,13 @@ import { JWTAuthMiddleware } from "./auth/middlewares.js"
 import { cookieOptions } from "./auth/tools.js"
 
 const server = express()
-// MIDDLEWARES
-const whitelist = [process.env.FRONTEND_DEV_URL, process.env.FRONTEND_PROD_URL]
+
+if (process.env.TS_NODE_DEV || process.env.NODE_ENV === "test") require("dotenv").config()
+
+const { FRONTEND_DEV_URL, FRONTEND_PROD_URL } = process.env
+if (!FRONTEND_DEV_URL || !FRONTEND_PROD_URL) throw new Error("Environment variables unreachable.")
+
+const whitelist = [FRONTEND_DEV_URL, FRONTEND_PROD_URL]
 const corsOptions = {
     origin: (origin, next) => {
         try {
@@ -24,17 +29,15 @@ const corsOptions = {
     }
 }
 
-server.use(cors())
+server.use(cors(corsOptions))
 server.use(express.json())
 server.use(cookieParser())
 server.use(passport.initialize({ session: true }))
 server.use(csrf({ cookie: cookieOptions }))
 
-// ROUTES
 server.use("/users", usersRoutes)
 server.use("/chat", JWTAuthMiddleware, chatRoutes)
 
-// ERROR HANDLERS
 server.use(error4xx)
 server.use(catchAllHandler)
 

@@ -13,7 +13,7 @@ io.use(async (socket, next) => {
     const token = socket.handshake.headers.cookie.accessToken
     if (token) {
         if (await verifyToken(token)) next()
-        else next(createError(403))
+        else next(createError(401))
     } else next(createError(400, "Missing credentials"))
 })
 
