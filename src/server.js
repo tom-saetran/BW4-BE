@@ -27,7 +27,8 @@ const corsOptions = {
         } catch (error) {
             next(error)
         }
-    }
+    },
+    credentials: true
 }
 
 server.use(cors(corsOptions))
