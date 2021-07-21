@@ -230,6 +230,9 @@ const animals = [
     "Yak",
     "Zebra"
 ]
+
+const randomUserName = () => animals[Math.floor(Math.random() * animals.length)] + "-" + crypto.randomBytes(4).toString("hex")
+
 const UserSchema = new Schema(
     {
         firstname: { type: String, required: true },
@@ -237,7 +240,7 @@ const UserSchema = new Schema(
         username: {
             type: String,
             required: true,
-            default: animals[Math.floor(Math.random() * animals.length)] + "-" + new crypto.randomBytes(4).toString("hex"),
+            default: randomUserName(),
             unique: true
         },
         email: { type: String, required: true, unique: true },
