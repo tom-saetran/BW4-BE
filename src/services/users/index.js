@@ -4,8 +4,6 @@ import passport from "passport"
 import mongoose from "mongoose"
 import q2m from "query-to-mongo"
 import createError from "http-errors"
-import rateLimiter from "express-rate-limit"
-import speedLimiter from "express-slow-down"
 import { v2 as cloudinary } from "cloudinary"
 import { validationResult } from "express-validator"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
@@ -14,14 +12,11 @@ import { cookieOptions } from "../../auth/tools.js"
 import { checkIfAdmin } from "../../auth/permissions.js"
 import { JWTAuthMiddleware } from "../../auth/middlewares.js"
 import { refreshTokens, JWTAuthenticate } from "../../auth/tools.js"
-import { LoginValidator, UserValidator, UserEditValidator } from "./validator.js"
+import { LoginValidator, UserValidator } from "./validator.js"
 import ChatModel from "../chat/schema.js"
-
+import { heavyRateLimiter, normalSpeedLimiter } from "../tools.js"
 const { isValidObjectId } = mongoose
 const usersRouter = express.Router()
-
-const heavyRateLimiter = rateLimiter({ windowMs: 60000, max: 5 })
-const normalSpeedLimiter = speedLimiter({ windowMs: 60000, delayAfter: 60, delayMs: 1000 })
 
 usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, next) => {
     try {
@@ -104,6 +99,11 @@ usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
         next(error)
     }
 })
+
+// GET users
+/**
+ * /users?firstname=Zingo
+ */
 
 usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {

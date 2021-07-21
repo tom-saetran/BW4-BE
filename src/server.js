@@ -39,7 +39,7 @@ server.use(passport.initialize({ session: true }))
 //server.use(csrf({ cookie: cookieOptions }))
 
 server.use("/users", usersRoutes)
-server.use("/chat", JWTAuthMiddleware, chatRoutes)
+server.use("/chats", JWTAuthMiddleware, chatRoutes)
 
 server.use(error4xx)
 server.use(catchAllHandler)

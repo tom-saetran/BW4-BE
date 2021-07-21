@@ -13,7 +13,8 @@ const MessageSchema = new Schema(
 
 const RoomSchema = new Schema(
     {
-        room: { type: String, required: true },
+        roomName: { type: String, required: true },
+        members: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
         chats: { type: [MessageSchema], required: true, default: [] }
     },
     { timestamps: true }

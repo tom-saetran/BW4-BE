@@ -10,15 +10,15 @@ import { corsOptions } from "./server.js"
 const http = createServer(server)
 const io = new Server(http, { allowEIO3: true })
 
-let onlineUsers = []
+let online = []
+
+export const sockets = {}
 
 io.use(cors(corsOptions))
 io.use(async (socket, next) => {
     const token = socket.handshake.headers.cookie.accessToken
-    if (token) {
-        if (await verifyToken(token)) next()
-        else next(createError(401))
-    } else next(createError(400, "Missing credentials"))
+    if (token) (await verifyToken(token)) ? next() : next(createError(401))
+    else next(createError(400, "Missing credentials"))
 })
 
 io.on("connection", socket => {
@@ -27,22 +27,23 @@ io.on("connection", socket => {
     //     console.log(socket.rooms)
     // })
 
-    socket.on("setUsername", ({ username, room }) => {
-        onlineUsers.push({ username: username, id: socket.id, room })
+    socket.on("joinServer", ({ username, room }) => {
+        online.push({ username: username, id: socket.id, room })
 
         //.emit - echoing back to itself
-        socket.emit("loggedin")
+        socket.emit("loggedIn")
 
         //.broadcast.emit - emitting to everyone else
         socket.broadcast.emit("newConnection")
         socket.join(room)
-
+        sockets[socket.id] = socket
         //io.sockets.emit - emitting to everybody in the known world
         //io.sockets.emit("newConnection")
     })
 
     socket.on("disconnect", () => {
         console.log("Disconnecting...")
+        delete sockets[socket.id]
         onlineUsers = onlineUsers.filter(user => user.id !== socket.id)
     })
 
