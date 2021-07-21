@@ -190,8 +190,9 @@ const upload = multer({ storage: cloudinaryStorage }).single("avatar")
 usersRouter.post("/me/avatar", heavyRateLimiter, JWTAuthMiddleware, upload, async (req, res, next) => {
     try {
         let user = req.user
-        await Model.findByIdAndUpdate(user._id, { $set: { avatar: req.file.path } }, mongoUploadOptions)
-        res.status(200).send(result)
+        user.avatar = req.file.path
+        await user.save()
+        res.status(200).send(user)
     } catch (error) {
         next(error)
     }
