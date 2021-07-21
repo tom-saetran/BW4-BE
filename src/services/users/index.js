@@ -111,7 +111,12 @@ usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, nex
             .sort(query.options.sort)
             .skip(query.options.skip || 0)
             .limit(query.options.limit && query.options.limit < maxLimit ? query.options.limit : maxLimit)
-        const response = result.map(entry => ({ _id: entry._id, firstname: entry.firstname, surname: entry.surname }))
+        const response = result.map(entry => ({
+            _id: entry._id,
+            firstname: entry.firstname,
+            surname: entry.surname,
+            username: entry.username
+        }))
         res.status(200).send({ navigation: query.links("/users", pages), pages, response })
     } catch (error) {
         next(error)
