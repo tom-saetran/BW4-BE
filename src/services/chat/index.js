@@ -26,14 +26,18 @@ const chatRoutes = express.Router()
  */
 
 chatRoutes.post("/room", async (req, res, next) => {
-    const { members } = req.body
-    const room = await Model.findOne({ members })
+    try {
+        const { members, roomName } = req.body
+        const room = await Model.findOne({ members })
 
-    if (room) res.status(200).send(room._id)
-    else {
-        const newRoom = new Model(members)
-        await newRoom.save()
-        res.status(201).send(newRoom._id)
+        if (room) res.status(200).send(room._id)
+        else {
+            const newRoom = new Model({ members, roomName })
+            await newRoom.save()
+            res.status(201).send(newRoom._id)
+        }
+    } catch (error) {
+        next(error)
     }
 })
 // FRONT END CLUES 🦊
