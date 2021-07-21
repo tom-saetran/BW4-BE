@@ -105,7 +105,7 @@ usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
 usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         const query = q2m(req.query)
-        const pages = await Model.countDocuments(query.criteria)
+        const users = await Model.countDocuments(query.criteria)
         const maxLimit = 10
         query.options.limit = query.options.limit < maxLimit ? query.options.limit : maxLimit
         const result = await Model.find(query.criteria)
@@ -118,6 +118,7 @@ usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, nex
             surname: entry.surname,
             username: entry.username
         }))
+        const pages = Math.ceil(users / query.options.limit)
         res.status(200).send({ navigation: query.links("/users", pages), pages, response })
     } catch (error) {
         next(error)
