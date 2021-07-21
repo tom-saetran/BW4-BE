@@ -10,6 +10,7 @@ import chatRoutes from "./services/chat/index.js"
 import { catchAllHandler, error4xx } from "./errors.js"
 import { JWTAuthMiddleware } from "./auth/middlewares.js"
 import { cookieOptions } from "./auth/tools.js"
+import listEndpoints from "express-list-endpoints"
 
 const server = express()
 
@@ -42,5 +43,7 @@ server.use("/chat", JWTAuthMiddleware, chatRoutes)
 
 server.use(error4xx)
 server.use(catchAllHandler)
+
+console.table(listEndpoints(server))
 
 export default server

@@ -163,17 +163,17 @@ usersRouter.delete("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, 
     }
 })
 
-usersRouter.put("/me", heavyRateLimiter, UserEditValidator, JWTAuthMiddleware, async (req, res, next) => {
+usersRouter.put("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
     const { firstname, surname, email, username } = req.body
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
             let user = req.user
-            user.firstname = firstname
-            user.surname = surname
-            user.username = username
-            user.email = email
-            user.password = await hashPassword(req.body.password) // <= goes to own route in next revision
+            if (firstname) user.firstname = firstname
+            if (surname) user.surname = surname
+            if (username) user.username = username
+            if (email) user.email = email
+            //if (password) user.password = await hashPassword(req.body.password) // <= goes to own route in next revision
 
             const result = await user.save()
 
