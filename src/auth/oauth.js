@@ -4,14 +4,14 @@ import { Strategy } from "passport-google-oauth20"
 import UserModel from "../services/users/schema.js"
 import { JWTAuthenticate } from "./tools.js"
 
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FRONTEND_PROD_URL } = process.env
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !FRONTEND_PROD_URL) throw new error("Environment variables unreadable")
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BACKEND_PROD_URL } = process.env
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !BACKEND_PROD_URL) throw new Error("Environment variables unreadable")
 
 const GoogleStrat = new Strategy(
     {
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: FRONTEND_PROD_URL + "/users/login/oauth/google/redirect"
+        callbackURL: BACKEND_PROD_URL + "/users/login/oauth/google/redirect"
     },
     async (accessToken, refreshToken, _profile, next) => {
         const profile = _profile
