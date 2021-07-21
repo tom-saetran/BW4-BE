@@ -47,7 +47,7 @@ io.on("connection", socket => {
     })
 
     socket.on("sendMessage", async ({ message, room }) => {
-        await Model.findOneAndUpdate({ name: room }, { $push: { chatHistory: message } })
+        await Model.findOneAndUpdate({ name: room }, { $push: { chats: message } })
         socket.to(room).emit("message", message)
     })
 })
