@@ -173,7 +173,7 @@ usersRouter.put("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, nex
             if (surname) user.surname = surname
             if (username) user.username = username
             if (email) user.email = email
-            //if (password) user.password = await hashPassword(req.body.password) // <= goes to own route in next revision
+            //if (password) user.password = await hashPassword(req.body.password)
 
             const result = await user.save()
 
@@ -184,14 +184,12 @@ usersRouter.put("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, nex
     }
 })
 
-const mongoUploadOptions = { new: true, useFindAndModify: false, timestamps: false }
 const cloudinaryStorage = new CloudinaryStorage({ cloudinary, params: { folder: "BW4" } })
 const upload = multer({ storage: cloudinaryStorage }).single("avatar")
 usersRouter.post("/me/avatar", heavyRateLimiter, JWTAuthMiddleware, upload, async (req, res, next) => {
     try {
-        let user = req.user
-        user.avatar = await Model.findByIdAndUpdate(req.user._id, { $set: { avatar: req.file.path } }, mongoUploadOptions)
-        const result = await user.save()
+        req.user.avatar = req.file.path
+        const result = await req.user.save()
         res.status(200).send(result)
     } catch (error) {
         next(error)
