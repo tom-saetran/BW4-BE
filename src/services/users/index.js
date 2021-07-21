@@ -57,8 +57,8 @@ usersRouter.post("/login", heavyRateLimiter, LoginValidator, async (req, res, ne
             if (user) {
                 const { accessToken, refreshToken } = await JWTAuthenticate(user)
 
-                res.cookie("accessToken", accessToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
-                res.cookie("refreshToken", refreshToken, { httpOnly: true /*sameSite: "lax", secure: true*/ })
+                res.cookie("accessToken", accessToken, cookieOptions)
+                res.cookie("refreshToken", refreshToken, cookieOptions)
                 res.send(user)
             } else next(createError(401, "Wrong credentials provided"))
         } else next(createError(400, errors.mapped()))
