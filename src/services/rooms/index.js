@@ -2,7 +2,7 @@ import express from "express"
 import Model from "./schema.js"
 import createError from "http-errors"
 
-const chatRoutes = express.Router()
+const roomRoutes = express.Router()
 
 // POST /room
 
@@ -25,7 +25,7 @@ const chatRoutes = express.Router()
  *
  */
 
-chatRoutes.post("/room", async (req, res, next) => {
+roomRoutes.post("/", async (req, res, next) => {
     try {
         const { members, roomName } = req.body
         const room = await Model.findOne({ members })
@@ -49,23 +49,23 @@ chatRoutes.post("/room", async (req, res, next) => {
 // GET rooms for user with userid
 
 // GET ROOMS FROM USERDB? WITH ROOM ID
-chatRoutes.get("/", async (req, res, next) => {
+roomRoutes.get("/", async (req, res, next) => {
     const myRooms = await Model.find({ members: req.user._id })
     if (myRooms.length > 0) res.send(myRooms)
     else next(createError(404, "You are alone in this world"))
 })
 
 //GET CHATS IN ROOM WITH ID
-chatRoutes.get("/room/:chatid", async (req, res, next) => {
+roomRoutes.get("/:id", async (req, res, next) => {
     try {
-        const room = await Model.findById(req.params.chatid)
+        const room = await Model.findById(req.params.id)
         res.status(200).send({ chats: room.chats })
     } catch (error) {
         next(error)
     }
 })
 
-export default chatRoutes
+export default roomRoutes
 
 /*
 

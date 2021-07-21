@@ -13,12 +13,12 @@ import { checkIfAdmin } from "../../auth/permissions.js"
 import { JWTAuthMiddleware } from "../../auth/middlewares.js"
 import { refreshTokens, JWTAuthenticate } from "../../auth/tools.js"
 import { LoginValidator, UserValidator } from "./validator.js"
-import ChatModel from "../chat/schema.js"
+import ChatModel from "../rooms/schema.js"
 import { heavyRateLimiter, normalSpeedLimiter } from "../tools.js"
 const { isValidObjectId } = mongoose
-const usersRouter = express.Router()
+const userRouter = express.Router()
 
-usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, next) => {
+userRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, next) => {
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
@@ -43,7 +43,7 @@ usersRouter.post("/register", heavyRateLimiter, UserValidator, async (req, res, 
     }
 })
 
-usersRouter.post("/login", heavyRateLimiter, LoginValidator, async (req, res, next) => {
+userRouter.post("/login", heavyRateLimiter, LoginValidator, async (req, res, next) => {
     try {
         const errors = validationResult(req)
         if (errors.isEmpty()) {
@@ -63,8 +63,8 @@ usersRouter.post("/login", heavyRateLimiter, LoginValidator, async (req, res, ne
     }
 })
 
-usersRouter.get("/login/oauth/google/login", normalSpeedLimiter, passport.authenticate("google", { scope: ["profile", "email"] }))
-usersRouter.get("/login/oauth/google/redirect", normalSpeedLimiter, passport.authenticate("google"), async (req, res, next) => {
+userRouter.get("/login/oauth/google/login", normalSpeedLimiter, passport.authenticate("google", { scope: ["profile", "email"] }))
+userRouter.get("/login/oauth/google/redirect", normalSpeedLimiter, passport.authenticate("google"), async (req, res, next) => {
     try {
         const { tokens } = req.user
         res.cookie("accessToken", tokens.accessToken, cookieOptions)
@@ -75,7 +75,7 @@ usersRouter.get("/login/oauth/google/redirect", normalSpeedLimiter, passport.aut
     }
 })
 
-usersRouter.post("/logout", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.post("/logout", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         let user = req.user
         user.refreshToken = undefined
@@ -86,7 +86,7 @@ usersRouter.post("/logout", heavyRateLimiter, JWTAuthMiddleware, async (req, res
     }
 })
 
-usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
+userRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
     try {
         if (!req.cookies.refreshToken) next(createError(400, "Refresh Token not provided"))
         else {
@@ -105,7 +105,7 @@ usersRouter.post("/refreshToken", heavyRateLimiter, async (req, res, next) => {
  * /users?firstname=Zingo
  */
 
-usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         const query = q2m(req.query)
         const users = await Model.countDocuments(query.criteria)
@@ -129,7 +129,7 @@ usersRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, nex
     }
 })
 
-usersRouter.get("/me", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.get("/me", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         res.send(req.user)
     } catch (error) {
@@ -137,7 +137,7 @@ usersRouter.get("/me", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, n
     }
 })
 
-usersRouter.get("/me/chats", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.get("/me/chats", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         const result = await ChatModel.findOne({ room: req.user.room })
         res.send(result)
@@ -146,7 +146,7 @@ usersRouter.get("/me/chats", normalSpeedLimiter, JWTAuthMiddleware, async (req, 
     }
 })
 
-usersRouter.get("/me/chats/:id", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.get("/me/chats/:id", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         const result = await ChatModel.findById(req.params.id).populate("chats")
         res.send(result)
@@ -155,7 +155,7 @@ usersRouter.get("/me/chats/:id", normalSpeedLimiter, JWTAuthMiddleware, async (r
     }
 })
 
-usersRouter.delete("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.delete("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         const user = req.user
         await user.deleteOne()
@@ -165,7 +165,7 @@ usersRouter.delete("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, 
     }
 })
 
-usersRouter.put("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.put("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, next) => {
     const { firstname, surname, email, username } = req.body
     try {
         const errors = validationResult(req)
@@ -188,7 +188,7 @@ usersRouter.put("/me", heavyRateLimiter, JWTAuthMiddleware, async (req, res, nex
 
 const cloudinaryStorage = new CloudinaryStorage({ cloudinary, params: { folder: "BW4" } })
 const upload = multer({ storage: cloudinaryStorage }).single("avatar")
-usersRouter.post("/me/avatar", heavyRateLimiter, JWTAuthMiddleware, upload, async (req, res, next) => {
+userRouter.post("/me/avatar", heavyRateLimiter, JWTAuthMiddleware, upload, async (req, res, next) => {
     try {
         let user = req.user
         user.avatar = req.file.path
@@ -199,7 +199,7 @@ usersRouter.post("/me/avatar", heavyRateLimiter, JWTAuthMiddleware, upload, asyn
     }
 })
 
-usersRouter.get("/:id", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
+userRouter.get("/:id", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next) => {
     try {
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
         else {
@@ -212,7 +212,7 @@ usersRouter.get("/:id", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, 
     }
 })
 
-usersRouter.delete("/:id", heavyRateLimiter, JWTAuthMiddleware, checkIfAdmin, async (req, res, next) => {
+userRouter.delete("/:id", heavyRateLimiter, JWTAuthMiddleware, checkIfAdmin, async (req, res, next) => {
     try {
         let result
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
@@ -226,7 +226,7 @@ usersRouter.delete("/:id", heavyRateLimiter, JWTAuthMiddleware, checkIfAdmin, as
 })
 
 const mongoPutOptions = { runValidators: true, new: true, useFindAndModify: false }
-usersRouter.put("/:id", heavyRateLimiter, JWTAuthMiddleware, checkIfAdmin, async (req, res, next) => {
+userRouter.put("/:id", heavyRateLimiter, JWTAuthMiddleware, checkIfAdmin, async (req, res, next) => {
     try {
         let result
         if (!isValidObjectId(req.params.id)) next(createError(400, `ID ${req.params.id} is invalid`))
@@ -239,4 +239,4 @@ usersRouter.put("/:id", heavyRateLimiter, JWTAuthMiddleware, checkIfAdmin, async
     }
 })
 
-export default usersRouter
+export default userRouter

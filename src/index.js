@@ -1,6 +1,6 @@
 import cors from "cors"
 import mongoose from "mongoose"
-import Model from "./services/chat/schema.js"
+import Model from "./services/rooms/schema.js"
 import server from "./server.js"
 import { createServer } from "http"
 import { Server } from "socket.io"
@@ -48,7 +48,7 @@ io.on("connection", socket => {
     })
 
     socket.on("sendMessage", async ({ message, room }) => {
-        await Model.findOneAndUpdate({ name: room }, { $push: { chats: message } })
+        await Model.findOneAndUpdate({ name: room }, { $push: { chats: message } }, { useFindAndModify: false })
         socket.to(room).emit("message", message)
     })
 })

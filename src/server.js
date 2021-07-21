@@ -6,7 +6,7 @@ import oauth from "./auth/oauth.js"
 import cookieParser from "cookie-parser"
 import createError from "http-errors"
 import usersRoutes from "./services/users/index.js"
-import chatRoutes from "./services/chat/index.js"
+import roomRoutes from "./services/rooms/index.js"
 import { catchAllHandler, error4xx } from "./errors.js"
 import { JWTAuthMiddleware } from "./auth/middlewares.js"
 import { cookieOptions } from "./auth/tools.js"
@@ -39,7 +39,7 @@ server.use(passport.initialize({ session: true }))
 //server.use(csrf({ cookie: cookieOptions }))
 
 server.use("/users", usersRoutes)
-server.use("/chats", JWTAuthMiddleware, chatRoutes)
+server.use("/rooms", JWTAuthMiddleware, roomRoutes)
 
 server.use(error4xx)
 server.use(catchAllHandler)
