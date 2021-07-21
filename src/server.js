@@ -18,7 +18,7 @@ if (process.env.TS_NODE_DEV || process.env.NODE_ENV === "test") require("dotenv"
 const { FRONTEND_DEV_URL, FRONTEND_PROD_URL } = process.env
 if (!FRONTEND_DEV_URL || !FRONTEND_PROD_URL) throw new Error("Environment variables unreachable.")
 
-const whitelist = [FRONTEND_DEV_URL, FRONTEND_PROD_URL]
+const whitelist = [FRONTEND_DEV_URL, FRONTEND_PROD_URL, `${FRONTEND_PROD_URL}/`, `${FRONTEND_DEV_URL}/`]
 const corsOptions = {
     origin: (origin, next) => {
         try {
