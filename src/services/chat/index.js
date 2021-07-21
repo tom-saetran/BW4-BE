@@ -26,7 +26,7 @@ const chatRoutes = express.Router()
 
 chatRoutes.post("/room", async (req, res, next) => {
     const { members } = req.body
-    const room = await RoomModel.findOne({ members })
+    const room = await Model.findOne({ members })
 
     if (room) res.status(200).send(room._id)
     else {
@@ -45,7 +45,7 @@ chatRoutes.post("/room", async (req, res, next) => {
 
 // GET ROOMS FROM USERDB? WITH ROOM ID
 chatRoutes.get("/", async (req, res, next) => {
-    const myRooms = await RoomModel.find({ members: req.user._id })
+    const myRooms = await Model.find({ members: req.user._id })
     if (!myRooms) next(createError(404, "You are alone in this world"))
     else res.send(myRooms)
 })
