@@ -240,7 +240,7 @@ const UserSchema = new Schema(
         username: {
             type: String,
             required: true,
-            default: randomUserName(),
+            default: () => randomUserName(),
             unique: true
         },
         email: { type: String, required: true, unique: true },
