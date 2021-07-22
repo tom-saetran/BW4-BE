@@ -48,7 +48,7 @@ roomRoutes.post("/", async (req, res, next) => {
 // GET chat history for room
 // GET rooms for user with userid
 
-// GET ROOMS FROM USERDB? WITH ROOM ID
+// GET ROOMS WITH USER ID
 roomRoutes.get("/", async (req, res, next) => {
     const myRooms = await Model.find({ members: req.user._id })
     if (myRooms.length > 0) res.send(myRooms)
@@ -59,7 +59,8 @@ roomRoutes.get("/", async (req, res, next) => {
 roomRoutes.get("/:id", async (req, res, next) => {
     try {
         const room = await Model.findById(req.params.id)
-        res.status(200).send({ chats: room.chats })
+        if (room) res.status(200).send({ chats: room.chats })
+        else next(createError(404, "Room not found"))
     } catch (error) {
         next(error)
     }

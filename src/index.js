@@ -10,8 +10,6 @@ import { corsOptions } from "./server.js"
 const http = createServer(server)
 const io = new Server(http, { allowEIO3: true })
 
-let online = []
-
 export const sockets = {}
 
 io.use(cors(corsOptions))
