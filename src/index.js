@@ -13,12 +13,11 @@ const io = new Server(http, { allowEIO3: true })
 
 export const sockets = {}
 
-
 //io.use(cors(corsOptions))
 
 //io.use(cookieParser())
 io.use(async (socket, next) => {
-    const token = socket.handshake.headers.cookie.split('=')[1]
+    const token = socket.handshake.headers.cookie.split("=")[1]
 
     console.log({ token })
 
@@ -39,9 +38,9 @@ io.on("connection", socket => {
         socket.emit("loggedIn")
 
         //.broadcast.emit - emitting to everyone else
-        socket.broadcast.emit("newConnection")
         socket.join(roomId)
         sockets[socket.id] = { socket, username, roomId }
+        socket.broadcast.emit("newConnection")
         //io.sockets.emit - emitting to everybody in the known world
         //io.sockets.emit("newConnection")
     })
@@ -52,8 +51,9 @@ io.on("connection", socket => {
         console.log(message, roomId)
         try {
             const room = await Model.findByIdAndUpdate(roomId, { $push: { chats: message } }, { useFindAndModify: false })
-            if (room) socket.to(room).emit("message", message)
-            else throw new Error("Room not found")
+            if (room) {
+                socket.to(room).emit("message", message, roomId)
+            } else throw new Error("Room not found")
         } catch (error) {
             console.error(error)
         }

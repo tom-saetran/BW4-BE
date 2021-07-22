@@ -1,7 +1,6 @@
 import express from "express"
 import Model from "./schema.js"
 import createError from "http-errors"
-
 const roomRoutes = express.Router()
 
 // POST /room

@@ -11,6 +11,7 @@ import { catchAllHandler, error4xx } from "./errors.js"
 import { JWTAuthMiddleware } from "./auth/middlewares.js"
 import { cookieOptions } from "./auth/tools.js"
 import listEndpoints from "express-list-endpoints"
+import { SlowMinuteSpeedLimiter } from "../tools.js"
 
 const server = express()
 
@@ -39,7 +40,7 @@ server.use(passport.initialize({ session: true }))
 //server.use(csrf({ cookie: cookieOptions }))
 
 server.use("/users", usersRoutes)
-server.use("/rooms", JWTAuthMiddleware, roomRoutes)
+server.use("/rooms", SlowMinuteSpeedLimiter, JWTAuthMiddleware, roomRoutes)
 
 server.use(error4xx)
 server.use(catchAllHandler)
