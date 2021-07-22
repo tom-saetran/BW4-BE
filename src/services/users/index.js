@@ -111,7 +111,7 @@ userRouter.get("/", normalSpeedLimiter, JWTAuthMiddleware, async (req, res, next
         const users = await Model.countDocuments(query.criteria)
         const maxLimit = 10
         if (!query.options.limit) query.options.limit = maxLimit
-        query.options.limit = query.options.limit <= maxLimit ? query.options.limit : maxLimit
+        query.options.limit = query.options.limit > maxLimit ? maxLimit : query.options.limit
         const result = await Model.find(query.criteria)
             .sort(query.options.sort)
             .skip(query.options.skip || 0)
