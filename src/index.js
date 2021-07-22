@@ -27,29 +27,30 @@ io.on("connection", socket => {
     //     console.log(socket.rooms)
     // })
 
-    socket.on("joinServer", ({ username, room }) => {
-        online.push({ username: username, id: socket.id, room })
+    socket.on("joinServer", ({ username, roomId }) => {
+        //online.push({ username: username, id: socket.id, room })
 
         //.emit - echoing back to itself
         socket.emit("loggedIn")
 
         //.broadcast.emit - emitting to everyone else
         socket.broadcast.emit("newConnection")
-        socket.join(room)
-        sockets[socket.id] = socket
+        socket.join(roomId)
+        sockets[socket.id] = { socket, username, roomId }
         //io.sockets.emit - emitting to everybody in the known world
         //io.sockets.emit("newConnection")
     })
 
-    socket.on("disconnect", () => {
-        console.log("Disconnecting...")
-        delete sockets[socket.id]
-        onlineUsers = onlineUsers.filter(user => user.id !== socket.id)
-    })
+    socket.on("disconnect", () => delete sockets[socket.id])
 
-    socket.on("sendMessage", async ({ message, room }) => {
-        await Model.findOneAndUpdate({ name: room }, { $push: { chats: message } }, { useFindAndModify: false })
-        socket.to(room).emit("message", message)
+    socket.on("sendMessage", async ({ roomId, message }) => {
+        try {
+            const room = await Model.findByIdAndUpdate(roomId, { $push: { chats: message } }, { useFindAndModify: false })
+            if (room) socket.to(room).emit("message", message)
+            else throw new Error("Room not found")
+        } catch (error) {
+            console.error(error)
+        }
     })
 })
 
