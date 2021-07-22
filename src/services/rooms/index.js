@@ -50,14 +50,14 @@ roomRoutes.post("/", async (req, res, next) => {
 // GET ROOMS WITH USER ID
 roomRoutes.get("/", async (req, res, next) => {
     const myRooms = await Model.find({ members: req.user._id }).populate("members")
-    if (myRooms.length > 0) res.send(myRooms)
+    if (myRooms.length > 0) res.send({ _id: myRooms._id, members: myRooms.members })
     else next(createError(404, "You are alone in this world"))
 })
 
 //GET CHATS IN ROOM WITH ID
 roomRoutes.get("/:id", async (req, res, next) => {
     try {
-        const room = await Model.findById(req.params.id)
+        const room = await Model.findById(req.params.id).populate("chats.sender")
         if (room) res.status(200).send({ chats: room.chats })
         else next(createError(404, "Room not found"))
     } catch (error) {
