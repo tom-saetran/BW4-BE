@@ -50,7 +50,7 @@ roomRoutes.post("/", async (req, res, next) => {
 // GET ROOMS WITH USER ID
 roomRoutes.get("/", async (req, res, next) => {
     const myRooms = await Model.find({ members: req.user._id }).populate("members")
-    if (myRooms.length > 0) res.send({ _id: myRooms._id, members: myRooms.members })
+    if (myRooms.length > 0) res.send(myRooms)
     else next(createError(404, "You are alone in this world"))
 })
 
