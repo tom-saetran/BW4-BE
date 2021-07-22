@@ -11,7 +11,7 @@ import { catchAllHandler, error4xx } from "./errors.js"
 import { JWTAuthMiddleware } from "./auth/middlewares.js"
 import { cookieOptions } from "./auth/tools.js"
 import listEndpoints from "express-list-endpoints"
-import { SlowMinuteSpeedLimiter } from "../tools.js"
+import { SlowMinuteSpeedLimiter } from "./services/tools.js"
 
 const server = express()
 
