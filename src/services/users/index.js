@@ -120,7 +120,8 @@ userRouter.get("/", SlowMinuteSpeedLimiter, JWTAuthMiddleware, async (req, res, 
             _id: entry._id,
             firstname: entry.firstname,
             surname: entry.surname,
-            username: entry.username
+            username: entry.username,
+            avatar: entry.avatar
         }))
         const pages = Math.ceil(users / query.options.limit)
         res.status(200).send({ navigation: query.links("/users", users), pages, response })
