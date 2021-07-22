@@ -18,9 +18,6 @@ export const sockets = {}
 //io.use(cookieParser())
 io.use(async (socket, next) => {
     const token = socket.handshake.headers.cookie.split("=")[1]
-
-    console.log({ token })
-
     if (token) (await verifyToken(token)) ? next() : next(createError(401))
     else next(createError(400, "Missing credentials"))
 })
