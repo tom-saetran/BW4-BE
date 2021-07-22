@@ -4,7 +4,7 @@ const { Schema, model } = mongoose
 
 const MessageSchema = new Schema(
     {
-        text: { type: String, required: true },
+        message: { type: String, required: true },
         media: { type: String },
         sender: { type: Schema.Types.ObjectId, ref: "User", required: true }
     },
@@ -13,7 +13,7 @@ const MessageSchema = new Schema(
 
 const RoomSchema = new Schema(
     {
-        roomName: { type: String, required: true },
+        roomName: { type: String/* , required: true */ },
         members: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
         chats: { type: [MessageSchema], required: true, default: [] }
     },

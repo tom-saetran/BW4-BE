@@ -30,11 +30,11 @@ roomRoutes.post("/", async (req, res, next) => {
         const { members, roomName } = req.body
         const room = await Model.findOne({ members })
 
-        if (room) res.status(200).send(room._id)
+        if (room) res.status(200).send(room)
         else {
             const newRoom = new Model({ members, roomName })
             await newRoom.save()
-            res.status(201).send(newRoom._id)
+            res.status(201).send(newRoom)
         }
     } catch (error) {
         next(error)

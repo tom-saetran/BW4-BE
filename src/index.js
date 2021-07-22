@@ -6,15 +6,22 @@ import { createServer } from "http"
 import { Server } from "socket.io"
 import { verifyToken } from "./auth/tools.js"
 import { corsOptions } from "./server.js"
+import cookieParser from "cookie-parser"
 
 const http = createServer(server)
 const io = new Server(http, { allowEIO3: true })
 
 export const sockets = {}
 
-io.use(cors(corsOptions))
+
+//io.use(cors(corsOptions))
+
+//io.use(cookieParser())
 io.use(async (socket, next) => {
-    const token = socket.handshake.headers.cookie.accessToken
+    const token = socket.handshake.headers.cookie.split('=')[1]
+
+    console.log({ token })
+
     if (token) (await verifyToken(token)) ? next() : next(createError(401))
     else next(createError(400, "Missing credentials"))
 })
@@ -25,7 +32,7 @@ io.on("connection", socket => {
     //     console.log(socket.rooms)
     // })
 
-    socket.on("joinServer", ({ username, roomId }) => {
+    socket.on("joinRoom", ({ username, roomId }) => {
         //online.push({ username: username, id: socket.id, room })
 
         //.emit - echoing back to itself
@@ -42,6 +49,7 @@ io.on("connection", socket => {
     socket.on("disconnect", () => delete sockets[socket.id])
 
     socket.on("sendMessage", async ({ roomId, message }) => {
+        console.log(message, roomId)
         try {
             const room = await Model.findByIdAndUpdate(roomId, { $push: { chats: message } }, { useFindAndModify: false })
             if (room) socket.to(room).emit("message", message)
