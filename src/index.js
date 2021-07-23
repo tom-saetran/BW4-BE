@@ -17,7 +17,8 @@ export const sockets = {}
 
 //io.use(cookieParser())
 io.use(async (socket, next) => {
-    const token = socket.handshake.headers.cookie.split("=")[1]
+    const token = socket.handshake.headers.cookie.split('=')[1]
+
     if (token) (await verifyToken(token)) ? next() : next(createError(401))
     else next(createError(400, "Missing credentials"))
 })
@@ -45,12 +46,12 @@ io.on("connection", socket => {
     socket.on("disconnect", () => delete sockets[socket.id])
 
     socket.on("sendMessage", async ({ roomId, message }) => {
+
         console.log(message, roomId)
         try {
             const room = await Model.findByIdAndUpdate(roomId, { $push: { chats: message } }, { useFindAndModify: false })
-            if (room) {
-                socket.to(room).emit("message", message, roomId)
-            } else throw new Error("Room not found")
+            if (room) socket.to(room._id.toString()).emit("message", message)
+            else throw new Error("Room not found")
         } catch (error) {
             console.error(error)
         }
