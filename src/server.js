@@ -34,6 +34,14 @@ export const corsOptions = {
     credentials: true
 }
 
+import fs from "fs"
+import { fileURLToPath } from "url"
+import { dirname, join } from "path"
+const noAvatar = join(dirname(fileURLToPath(import.meta.url)), "./resources/images/noavatar.png")
+server.get("images/noavatar.png", (req, res, next) => {
+    res.sendFile(noAvatar)
+})
+
 server.use(cors(corsOptions))
 server.use(express.json())
 server.use(cookieParser())

@@ -57,8 +57,8 @@ roomRoutes.get("/", async (req, res, next) => {
 //GET CHATS IN ROOM WITH ID
 roomRoutes.get("/:id", async (req, res, next) => {
     try {
-        const room = await Model.findById(req.params.id).populate("chats.sender")
-        if (room) res.status(200).send({ chats: room.chats })
+        const room = await Model.findById(req.params.id).populate("chats.sender").populate('members')
+        if (room) res.status(200).send({ chats: room.chats, members: room.members })
         else next(createError(404, "Room not found"))
     } catch (error) {
         next(error)
