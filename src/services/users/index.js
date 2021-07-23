@@ -80,6 +80,8 @@ userRouter.post("/logout", HeavyMinuteRateLimiter, JWTAuthMiddleware, async (req
         let user = req.user
         user.refreshToken = undefined
         await user.save()
+        res.clearCookie("accessToken", cookieOptions)
+        res.clearCookie("refreshToken", cookieOptions)
         res.status(205).send("Logged out")
     } catch (error) {
         next(error)
