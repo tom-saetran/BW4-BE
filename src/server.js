@@ -12,6 +12,7 @@ import { JWTAuthMiddleware } from "./auth/middlewares.js"
 import { cookieOptions } from "./auth/tools.js"
 import listEndpoints from "express-list-endpoints"
 import { SlowMinuteSpeedLimiter } from "./services/tools.js"
+import { sockets } from './index.js'
 
 const server = express()
 
@@ -39,6 +40,15 @@ server.use(cookieParser())
 server.use(passport.initialize({ session: true }))
 //server.use(csrf({ cookie: cookieOptions }))
 
+server.get('/socket', (req, res) => {
+    const log = Object.entries(sockets).map(([uuid, socket]) => {
+        return [uuid, socket.socket.rooms]
+    })
+
+    console.log(log)
+
+    res.send()
+})
 server.use("/users", usersRoutes)
 server.use("/rooms", SlowMinuteSpeedLimiter, JWTAuthMiddleware, roomRoutes)
 

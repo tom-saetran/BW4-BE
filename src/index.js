@@ -28,11 +28,18 @@ io.on("connection", socket => {
     //     console.log(socket.rooms)
     // })
 
+    socket.on("did-connect", async (userId) => {
+        const rooms = await Model.find({ members: userId })
+        for (let room of rooms) socket.join(room._id.toString())
+    })
+
     socket.on("joinRoom", ({ username, roomId }) => {
         //online.push({ username: username, id: socket.id, room })
 
         //.emit - echoing back to itself
         socket.emit("loggedIn")
+
+        console.log(roomId, typeof roomId)
 
         //.broadcast.emit - emitting to everyone else
         socket.join(roomId)
@@ -48,9 +55,8 @@ io.on("connection", socket => {
         console.log(message, roomId)
         try {
             const room = await Model.findByIdAndUpdate(roomId, { $push: { chats: message } }, { useFindAndModify: false })
-            if (room) {
-                socket.to(room).emit("message", message, roomId)
-            } else throw new Error("Room not found")
+            if (room) { socket.to(room._id.toString()).emit("message", ({ message: message, roomId: roomId })) }
+            else throw new Error("Room not found")
         } catch (error) {
             console.error(error)
         }
