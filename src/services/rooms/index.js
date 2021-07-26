@@ -27,13 +27,15 @@ const roomRoutes = express.Router()
 roomRoutes.post("/", async (req, res, next) => {
     try {
         const { members, roomName } = req.body
-        const room = await Model.findOne({ members })
+        const room = await Model.findOne({ members }).populate('members')
 
         if (room) res.status(200).send(room)
         else {
             const newRoom = new Model({ members, roomName })
             await newRoom.save()
-            res.status(201).send(newRoom)
+            const populatedRoom = await Model.findOne({ members }).populate('members')
+            console.log(populatedRoom)
+            res.status(201).send(populatedRoom)
         }
     } catch (error) {
         next(error)
